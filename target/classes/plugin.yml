@@ -1,0 +1,11 @@
+name: Prison
+version: 3.0-SNAPSHOT
+description: The only Prison plugin you'll ever need on your Minecraft server.
+author: SirFaizdat
+website: http://sirfaizdat.github.io/Prison/
+main: me.sirfaizdat.prison.Prison
+softdepend: [Vault, WorldEdit]
+commands:
+  prison:
+    description: Commands to manage Prison itself.
+    usage: /<command>
