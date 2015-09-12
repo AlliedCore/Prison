@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Apocalypse MC.
+ * Copyright (C) 2015 SirFaizdat
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -204,7 +204,7 @@ public class CommandHandler implements CommandExecutor {
             PluginCommand rootPcommand = plugin.getCommand(identifiers[0]);
 
             if (rootPcommand == null)
-                throw new RegisterCommandMethodException(method, "The rootcommand (the first identifier) is not registerd in the plugin.yml");
+                throw new RegisterCommandMethodException(method, "The rootcommand (the first identifier) is not registered in the plugin.yml.");
 
             if (rootPcommand.getExecutor() != this)
                 rootPcommand.setExecutor(this);

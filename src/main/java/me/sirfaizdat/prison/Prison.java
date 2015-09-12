@@ -18,11 +18,17 @@
 
 package me.sirfaizdat.prison;
 
-import se.ranzdo.bukkit.methodcommand.CommandHandler;
+import me.sirfaizdat.prison.api.Feature;
+import me.sirfaizdat.prison.mines.MineFeature;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import se.ranzdo.bukkit.methodcommand.CommandHandler;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The main class for the Prison plugin. Initializes all features
@@ -35,8 +41,10 @@ public class Prison extends JavaPlugin {
     // == Variables
     private static Prison instance;
     private static PrisonLogger logger;
+    private static Lang lang;
 
-    private CommandHandler commandHandler;
+    public CommandHandler commandHandler;
+    private List<Feature> features;
 
     // == Methods
 
@@ -44,7 +52,9 @@ public class Prison extends JavaPlugin {
         // Initialize static variables
         instance = this;
         logger = new PrisonLogger();
-        long startTime = System.currentTimeMillis(); // Time the enabling
+        long startTime = System.currentTimeMillis(); // Timing this
+        lang = new Lang();
+        loadLanguageFile();
 
         // Core initialization
 
@@ -53,10 +63,20 @@ public class Prison extends JavaPlugin {
 
         // Feature initialization
 
+        features = new ArrayList<>();
+        registerFeature(new MineFeature());
+
         // Extension initialization
 
         long elapsedTime = System.currentTimeMillis() - startTime;
         logger.info("Enabled Prison v" + getDescription().getVersion() + " in " + elapsedTime + "ms. Created by SirFaizdat.");
+    }
+
+    @Override
+    public void onDisable() {
+        for (Feature feature : features) feature.deinit();
+        features.clear();
+        logger.info("Disabled Prison v" + getDescription().getVersion() + "... Seeya later (hopefully)!");
     }
 
     @Override
@@ -65,7 +85,40 @@ public class Prison extends JavaPlugin {
         return commandHandler.onCommand(sender, command, label, args);
     }
 
+    /**
+     * Register a feature into Prison.
+     *
+     * @param feature The Feature class to add and initialize.
+     */
+    public void registerFeature(Feature feature) {
+        features.add(feature);
+        feature.init();
+    }
+
+    /**
+     * Reload the configuration, as well as all of the Features.
+     */
+    public void reload() {
+        // Reload the configuration
+        reloadConfig();
+        // Reload the features.
+        for (Feature feature : features) {
+            feature.deinit();
+            feature.init();
+        }
+    }
+
     // == Private methods
+
+    private void loadLanguageFile() {
+        // Adds all the default language keys to the file.
+        lang.addDefault("successful-reload", "&7Successfully reloaded in &b%0 milliseconds.");
+        try {
+            lang.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     // == Static methods
 
@@ -84,6 +137,16 @@ public class Prison extends JavaPlugin {
     }
 
     /**
+     * Retrieve the Lang, which contains the langauge values
+     * for the plugin.
+     *
+     * @return The Lang object.
+     */
+    public static Lang lang() {
+        return lang;
+    }
+
+    /**
      * Translates &-prefixed color codes to MC color codes.
      *
      * @param txt The String to transalte the color codes of.
@@ -92,7 +155,5 @@ public class Prison extends JavaPlugin {
     public static String color(String txt) {
         return ChatColor.translateAlternateColorCodes('&', txt);
     }
-
-    // == Getters and setters
 
 }
